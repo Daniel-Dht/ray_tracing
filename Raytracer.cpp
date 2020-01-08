@@ -39,12 +39,13 @@ int main() {
 
             Ray ray = Ray(C, u);
 
-            float intersec = scene.spheres[0]->intersect(ray);
+            //float intersec = scene.spheres[0]->intersect(ray);
+            float intersec = scene.intersect(ray);
             if (intersec != -1.0) {
                 float index = (i*W + j) * 3;
                 image[index + 0] = intersec;
-                image[index + 1] = 0;
-                image[index + 2] = 0;                
+                image[index + 1] = intersec;
+                image[index + 2] = intersec;                
             }             
         }
     }

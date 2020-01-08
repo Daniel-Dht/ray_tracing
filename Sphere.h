@@ -6,6 +6,7 @@
 
 #include <algorithm> // for std::clamp (c++ 17)
 #include <Eigen/Dense>
+#include "iostream" 
 
 using Eigen::Vector3d;
 
@@ -14,6 +15,7 @@ public:
     Vector3d O;
     double R;
     Light* light;
+    Sphere() { };
     Sphere(const Vector3d _O, double _R, Light* _light) {
         O = _O;
         R = _R;
@@ -21,9 +23,9 @@ public:
         //std::cout<< light->L <<std::endl;
     }; 
     
-    //Sphere() {};
+    
 
-    float intersect(const Ray& r){
+    double intersect(const Ray& r){
 
         double a = 1;
         double b = 2* r.u.dot(r.C-O);
@@ -32,20 +34,26 @@ public:
 
         if (delta < 0) return -1.0;
         double t1 = (-b + sqrt(delta)) /2; // / (2*a)
+        // si le point de la boule le plus proche de la caméra est quand même
+        // derrière elle, ce t1 négatif permet de savoir qu'elle l'est.
         if (t1 < 0) return -1.0;
-    
-        t1 = (-b - sqrt(delta)) /2; // lower t
+        // mais si il est positif l'autre t1 peut être quand même négatif:
+        // la caméra se trouve à l'interieur de la sphère.
+        t1 = (-b - sqrt(delta)) /2; // closer point 
+        if (t1 <R) return -1.0;
+
         // light:
-        Vector3d P = r.C + t1*r.u;             // intersection point
-        Vector3d n = (P-O);                    // normal of the object at P
-        Vector3d l = (light->source -P);    // direction from P to the light source
-        double d = l.squaredNorm();            // distance between P and light source
+        Vector3d P = r.C + t1*r.u;        // intersection point
+        Vector3d n = (P-O);               // normal of the object at P
+        Vector3d l = (light->source-P);  // direction from P to the light source
+        double d = l.squaredNorm();       // distance between P and light source
         n.normalize();
         l.normalize();
 
-        float val = -l.dot(n) * light->power / (d); 
-        // std::cout<< val<< std::endl;
-        return std::clamp(val, 0.0f, 255.0f);
+        double val = l.dot(n) * light->power / (d); 
+
+        //std::cout << val << std::endl;
+        return std::clamp(val, 0.0, 255.0);
     }
 };
 
