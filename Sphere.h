@@ -9,16 +9,19 @@
 #include "iostream" 
 
 using Eigen::Vector3d;
+using Eigen::Vector3f;
 
 class Sphere {
 public:
     Vector3d O;
+    Vector3f col;
     double R;
     Light* light;
     Sphere() { };
-    Sphere(const Vector3d _O, double _R, Light* _light) {
+    Sphere(const Vector3d _O, double _R, Vector3f _col,Light* _light) {
         O = _O;
         R = _R;
+        col = _col;
         light = _light;
         //std::cout<< light->L <<std::endl;
     }; 

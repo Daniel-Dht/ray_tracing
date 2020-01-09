@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 using Eigen::Vector3d;
+using Eigen::Vector3f;
 
 class Scene {
 public:
@@ -17,26 +18,30 @@ public:
 	Light light = Light();
     std::vector<Sphere> spheres;
 
+    Vector3f white = Vector3f(1,1,1);
+    Vector3f red = Vector3f(1,0,0);
+    Vector3f green = Vector3f(0,1,0);
+    Vector3f blue = Vector3f(0,0,1);
+
     Scene() {
-    	spheres.push_back( Sphere(Vector3d(-15.0, 0.0, 0.0), 10.0, &light));
+    	spheres.push_back( Sphere(Vector3d(-15.0, 0.0, 0.0), 10.0, red, &light));
     	//spheres.push_back( Sphere(Vector3d( 10.0, 0.0, -5.0), 10.0, &light));
     	//spheres.push_back( Sphere(Vector3d( 0.0, -20.0, -10.0), 10.0, &light));
 
 
-    	spheres.push_back( Sphere(Vector3d( 0.0, 0.0, -1000.0), 970.0, &light));
-    	
-    	spheres.push_back( Sphere(Vector3d( 0.0,  1000.0, 0.0), 970.0, &light));
-    	spheres.push_back( Sphere(Vector3d( 0.0, -1000.0, 0.0), 970.0, &light));
+    	spheres.push_back( Sphere(Vector3d( 0.0, 0.0, -1000.0), 970.0, white, &light));
+    	    	
+    	spheres.push_back( Sphere(Vector3d( 0.0, -1000.0, 0.0), 970.0, white, &light));
+    	spheres.push_back( Sphere(Vector3d( 0.0,  1000.0, 0.0), 970.0, white, &light));
 
-    	spheres.push_back( Sphere(Vector3d( 1000.0, 0.0, 0.0), 970.0, &light));
-    	spheres.push_back( Sphere(Vector3d(-1000.0, 0.0, 0.0), 970.0, &light));
+    	spheres.push_back( Sphere(Vector3d( 1000.0, 0.0, 0.0), 970.0, white, &light));
+    	spheres.push_back( Sphere(Vector3d(-1000.0, 0.0, 0.0), 970.0, white, &light));
     }
 
-    double intersect(Ray r){
+    Vector3f intersect(Ray r){
 
     	double min_t1 = std::numeric_limits<double>::infinity();;
     	int min_i = -1;
-    	double final_val = -1;
 
     	int i = -1;
     	while(i < int(spheres.size()) ) {
@@ -72,13 +77,15 @@ public:
 	        n.normalize();
 	        l.normalize();
 
-	        final_val = l.dot(n) * s.light->power / (d); 
+	        double scale = l.dot(n) * s.light->power / (d); 
 
-	        //std::cout << final_val << std::endl;
-	        return std::clamp(final_val, 0.0, 255.0);
+	        scale = std::clamp(scale, 0.0, 255.0);
+	        //std::cout << final_col << std::endl;
+	        return s.col * scale;
+	        // return Vector3f(1,1,1)*scale;
     	}
     	
-    	return final_val;
+    	return Vector3f(-1,-1,-1);
     }
 };
 

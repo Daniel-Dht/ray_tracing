@@ -15,6 +15,7 @@
 #include <Eigen/Dense>
  
 using Eigen::Vector3d;
+using Eigen::Vector3f;
 
 int main() {
 
@@ -40,12 +41,12 @@ int main() {
             Ray ray = Ray(C, u);
 
             //float intersec = scene.spheres[0]->intersect(ray);
-            float intersec = scene.intersect(ray);
-            if (intersec != -1.0) {
+            Vector3f intersec_col = scene.intersect(ray);
+            if (intersec_col[0] != -1.0) {
                 float index = (i*W + j) * 3;
-                image[index + 0] = intersec;
-                image[index + 1] = intersec;
-                image[index + 2] = intersec;                
+                image[index + 0] = intersec_col[0];
+                image[index + 1] = intersec_col[1];
+                image[index + 2] = intersec_col[2];                
             }             
         }
     }
