@@ -7,9 +7,10 @@ using Eigen::Vector3d;
 
 class Light {
 public:
-    const double power = 400000.0; // light intensity
-    const Vector3d source = Vector3d(8.0, 0.0, 45.0);
-    // const Vector3d source = Vector3d(0.0, 0.0, 20.0);
+    const double power; // light intensity
+    const Vector3d source;
+    Light(const Vector3d& src, double pow) : power(pow), source(src) {};
+    
 };
 
 #endif // LIGHT_H

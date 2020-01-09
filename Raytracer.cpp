@@ -35,7 +35,7 @@ int main() {
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
    
-            Vector3d u = Vector3d(j-W/2.0+0.5, i-H/2.0+0.5, z); // DIRECTION DU RAYON
+            Vector3d u = Vector3d(j-W/2.0+0.5, -i+H/2.0+0.5, z); // DIRECTION DU RAYON
             u.normalize();
 
             Ray ray = Ray(C, u);
