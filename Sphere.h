@@ -4,7 +4,7 @@
 #include "Ray.h"
 #include "Light.h"
 
-#include <algorithm> // for std::clamp (c++ 17)
+//#include <algorithm> // for std::clamp (c++ 17)
 #include <Eigen/Dense>
 #include "iostream" 
 
@@ -17,15 +17,14 @@ public:
     Vector3f col;
     double R;
     Light* light;
+
     Sphere() { };
     Sphere(const Vector3d _O, double _R, Vector3f _col,Light* _light) {
         O = _O;
         R = _R;
         col = _col;
         light = _light;
-        //std::cout<< light->L <<std::endl;
     }; 
-    
     
 
     double intersect(const Ray& r){

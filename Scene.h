@@ -19,16 +19,16 @@ public:
     std::vector<Sphere> spheres;
 
     Vector3f white = Vector3f(1,1,1);
-    Vector3f red = Vector3f(1,0,0);
+    Vector3f red   = Vector3f(1,0,0);
     Vector3f green = Vector3f(0,1,0);
-    Vector3f blue = Vector3f(0,0,1);
+    Vector3f blue  = Vector3f(0,0,1);
 
     Scene() {
     	spheres.push_back( Sphere(Vector3d(-15.0, 0.0, 0.0), 10.0, red, &light));
-    	//spheres.push_back( Sphere(Vector3d( 10.0, 0.0, -5.0), 10.0, &light));
-    	//spheres.push_back( Sphere(Vector3d( 0.0, -20.0, -10.0), 10.0, &light));
+    	spheres.push_back( Sphere(Vector3d( 10.0, 0.0, -5.0), 10.0, blue,  &light));
+    	spheres.push_back( Sphere(Vector3d( 0.0, -20.0, -10.0), 10.0, green, &light));
 
-
+    	// walls :
     	spheres.push_back( Sphere(Vector3d( 0.0, 0.0, -1000.0), 970.0, white, &light));
     	    	
     	spheres.push_back( Sphere(Vector3d( 0.0, -1000.0, 0.0), 970.0, white, &light));
@@ -43,6 +43,8 @@ public:
     	double min_t1 = std::numeric_limits<double>::infinity();;
     	int min_i = -1;
 
+    	// intersecetion function
+    	// arg : i
     	int i = -1;
     	while(i < int(spheres.size()) ) {
     		i += 1;
