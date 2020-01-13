@@ -4,7 +4,7 @@
 #include "Ray.h"
 #include "Light.h"
 
-//#include <algorithm> // for std::clamp (c++ 17)
+//  // for std::clamp (c++ 17)
 #include <Eigen/Dense>
 #include "iostream" 
 #include <limits>
@@ -16,15 +16,20 @@ class Sphere {
 public:
     Vector3d O;
     Vector3f col;
-    double R;
-    bool isMirror;
+    double R; 
+    //double n_ratio = 0.76923; // for transparency material 1/1.3
+    bool isMirror=false;
+    bool isTrans=false;
 
     Sphere() { };
-    Sphere(const Vector3d _O, double _R, Vector3f _col, bool _isMirror=false) {
+    Sphere(const Vector3d _O, double _R, Vector3f _col) {
         O = _O;
         R = _R;
         col = _col;        
-        isMirror = _isMirror;
+        if(col[0]==-1)
+            isMirror = true;
+        if(col[0]==-2)
+            isTrans = true;        
     }; 
     
     double intersect(const Ray& r){

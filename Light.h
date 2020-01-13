@@ -14,12 +14,3 @@ public:
 };
 
 #endif // LIGHT_H
-
-
-
-
-
-
-
-
-
