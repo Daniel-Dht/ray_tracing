@@ -14,65 +14,84 @@
 #include "Sphere.h"
 #include "Scene.h"
 #include "Light.h"
+#include "Vector.h"
+#include "ProgressBar.h"
 
+#include <algorithm> 
 #include <chrono> 
-
-#include "iostream" 
-#include <Eigen/Dense>
+#include <iostream>
 
 using namespace std;
 using namespace std::chrono; 
 
-using Eigen::Vector3d; // norme / squaredNorm / normalize / dot / +,-,/,* /
-using Eigen::Vector3f;
+#define M_PI 3.14159265359
+#define M_2PI 6.28318530718
 
+int main(int argc, char **argv) {
+    int max_bounce = 10;
+    int n_rays = 1;
 
-int main() {
+    if (argc < 3)
+    {
+        fprintf(stderr, "Error: you must provide at least width and height (n_rays or recursive depth are options, default:1 & 10)\n");
+        return -1;
+    }
+    if (argc == 4) n_rays = atoi(argv[3]);
+    if (argc == 5) {
+        n_rays = atoi(argv[3]);
+        max_bounce = atoi(argv[4]);
+    }
 
-    auto start = high_resolution_clock::now();    
+    auto start = high_resolution_clock::now();        
 
-    const int W = 800;
-    const int H = 600;
+    const int W = atoi(argv[1]);
+    const int H = atoi(argv[2]);
     const int WH = W*H;
-
-    const double PI = 3.14159265359;
-    const double fov = PI/3; 
+    
+    const double fov = M_PI/3; 
     const double z = - W / (2*tan(fov/2.0));
   
     const Vector3d C = Vector3d(0.0, 0.0, 60); // camera origin
 
-    Scene scene = Scene();
+    Scene scene = Scene(n_rays, max_bounce);
         
     std::vector<unsigned char> image(W*H * 3, 0);
 
-    int i,j;
-    #pragma omp parallel for schedule(dynamic,8)
+    ProgressBar progBar = ProgressBar(H, 10);
+    #pragma omp parallel for schedule(static,4)
     for (int i = 0; i < H; i++) {
-        for (int j = 0; j < W; j++) {
-        // for (int index = 0; index < WH; ++index)
-        // {
-        //     i = int(index/H);
-        //     j = int(index-W*i);
+        for (int j = 0; j < W; j++) {                   
 
-            Vector3d u = Vector3d(j-W/2.0+0.5, -i+H/2.0+0.5, z); // DIRECTION DU RAYON
-            u.normalize();        
+            Vector3f intersec_col = Vector3f(0,0,0);   
+            for (int k = 0; k < scene.n_rays; ++k) {   
+                // antialiasing                
+                double r1 = uniform(engine);
+			    double r2 = uniform(engine); 
+                double R = 0.25*sqrt(-2*log(r1));
+                double dx = R*cos(M_2PI*r2);
+                double dy = R*sin(M_2PI*r2);
+                //dx = dy = 0;
+                Vector3d u = Vector3d(j-W/2.0+0.5+dx, -i+H/2.0+0.5+dy, z).getNormalized(); // DIRECTION DU RAYON            
 
-            Vector3f intersec_col = scene.intersect(Ray(C, u));
-            //if (intersec_col[0] != -1.0) {
-                float index = (i*W + j) * 3;
-                image[index + 0] = intersec_col[0];
-                image[index + 1] = intersec_col[1];
-                image[index + 2] = intersec_col[2];                
-            //}             
+                // casting ray
+                intersec_col += scene.intersect(Ray(C, u));
+            }  
+
+            intersec_col /= scene.n_rays;
+
+            float index = (i*W + j) * 3;
+            image[index + 0] = std::clamp(std::pow(intersec_col[0], 0.45), 0.0, 255.0);
+            image[index + 1] = std::clamp(std::pow(intersec_col[1], 0.45), 0.0, 255.0);
+            image[index + 2] = std::clamp(std::pow(intersec_col[2], 0.45), 0.0, 255.0);                
         }
+        if( i%progBar.modulo == 0) progBar.cout_progress(float(i));                            
     }
     stbi_write_png("image.png", W, H, 3, &image[0], 0);
  
-    auto stop = high_resolution_clock::now();
-    auto cduration = duration_cast<milliseconds>(stop - start);
-    cout << "compute time: "
-    << cduration.count() << " milliseconds" << endl; 
+    auto cduration = duration_cast<milliseconds>(high_resolution_clock::now() - start);
+    cout << endl;
+    cout << "compute time: " << cduration.count() << " milliseconds" << endl; 
+    cout << "total ray casted: " << scene.total_ray_casted / 1E6 << " million" <<endl; 
+
     return 0;
 }
-
-// l'intensité lumineuse n'est pas perçu par l'oeil comme multplié par 2 lorque on la multiplié par 2. A la place on multipli par i^0.45.

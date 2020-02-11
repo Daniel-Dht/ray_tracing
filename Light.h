@@ -1,15 +1,14 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <Eigen/Dense>
-
-using Eigen::Vector3d;
+#include "Vector.h"
 
 class Light {
 public:
-    const double power; // light intensity
+    const float size = 5; // pour les ombres douces
+    const double power;    // light intensity
     const Vector3d source;
-    Light(const Vector3d& src, double pow) : power(pow), source(src) {};
+    Light(const Vector3d& src, double pow, float size) : power(pow), source(src), size(size) {};
     
 };
 
