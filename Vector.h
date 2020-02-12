@@ -12,7 +12,7 @@ public:
     double x;
     double y;
     double z;
-
+    Vector3d(){};
     Vector3d(double x_, double y_, double z_): x(x_), y(y_), z(z_) {}
     
     double dot(const Vector3d &p) const { return x*p.x + y*p.y + z*p.z;}

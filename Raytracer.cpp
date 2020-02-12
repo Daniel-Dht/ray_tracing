@@ -1,9 +1,9 @@
-
 // one include path:
 // C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared
 
 //->  g++ Raytracer.cpp -std=c++17 -fopenmp -O1
-// g++ arg : https://linux.die.net/man/1/g++,  -ftime-report for cimpile time
+// g++ arg : https://linux.die.net/man/1/g++,  -ftime-report for compile time
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
  
@@ -11,11 +11,10 @@
 #include "stb_image.h"
 
 #include "Ray.h"
-#include "Sphere.h"
 #include "Scene.h"
-#include "Light.h"
 #include "Vector.h"
 #include "ProgressBar.h"
+#include "Triangle.h"
 
 #include <algorithm> 
 #include <chrono> 
@@ -48,6 +47,8 @@ int main(int argc, char **argv) {
     const int H = atoi(argv[2]);
     const int WH = W*H;
     
+    Geometry test42 = Geometry("cube.off", 2, Vector3d(0,0,0));
+
     const double fov = M_PI/3; 
     const double z = - W / (2*tan(fov/2.0));
   

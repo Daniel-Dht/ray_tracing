@@ -2,7 +2,7 @@
 #define SCENE_H
 
 #include "Sphere.h"
-#include "Light.h"
+#include "Material.h"
 #include "Ray.h"
 
 #include <iostream>
@@ -29,47 +29,63 @@ Vector3d getRandomDir(Vector3d n){
 class Scene {
 public:
 	int n_rays, max_bounce;
+	int total_ray_casted = 0;
+
     std::vector<Sphere> spheres;
-    int n_spheres;
-    int total_ray_casted = 0;
+    int n_spheres=0;
+    
+	std::vector<Sphere> lights;
+    int n_lights=0;
 
-    Vector3f white = Vector3f(1,1,1);
-    Vector3f red   = Vector3f(1,0,0);
-    Vector3f green = Vector3f(0,1,0);
-    Vector3f blue  = Vector3f(0,0,1);
-    Vector3f fred   = Vector3f(255,69,0)/255;
-    Vector3f fgreen = Vector3f(0,250,0)/255;
-    Vector3f fblue  = Vector3f(24,116,205)/255;
-	Vector3f fgray  = Vector3f(176,196,	222)/255;
+    // Light light = Light(Vector3d(10.0, 30.0, 35.0), 500000000.0, 5);
 
-    Light light = Light(Vector3d(10.0, 30.0, 35.0), 500000000.0, 5);
-
-	// NORMAL : mode = 0
-	// MIRROR : mode = 1
-	// TRANS  : mode = 2
 	enum modes{NORMAL, MIRROR, TRANS};
     Scene(int n_rays, int max_bounce) : n_rays(n_rays), max_bounce(max_bounce) {
 
-		spheres.push_back( Sphere(Vector3d(-12., 0., 30.), 3., red, NORMAL , 0));
-    	spheres.push_back( Sphere(Vector3d(-12., 5., 0.), 8., red, MIRROR, 0));
-		spheres.push_back( Sphere(Vector3d( 12., 0., 0.), 8., red, MIRROR, 0));
+		Vector3f white = Vector3f(1,1,1);
+		Vector3f red   = Vector3f(1,0,0);
+		Vector3f green = Vector3f(0,1,0);
+		Vector3f blue  = Vector3f(0,0,1);
+		Vector3f fred   = Vector3f(255,69,0)/255;
+		Vector3f fgreen = Vector3f(0,250,0)/255;
+		Vector3f fblue  = Vector3f(24,116,205)/255;
+		Vector3f fgray  = Vector3f(176,196,	222)/255;
+		
+		add_sphere( Sphere(Vector3d(-12., 0., 30.), 3., Material(red, NORMAL , 0) ));
+    	add_sphere( Sphere(Vector3d(-12., 5., 0.), 8., Material(red, MIRROR, 0) ));
+		add_sphere( Sphere(Vector3d( 12., 0., 0.), 8., Material(red, MIRROR, 0) ));
 		
     	// walls :
-    	spheres.push_back( Sphere(Vector3d( 0., 0., -1000.), 970., fgray, NORMAL, 0));    	    	
-    	spheres.push_back( Sphere(Vector3d( 0., 0.,  1000.), 900., fgray, NORMAL, 0)); 
+    	add_sphere( Sphere(Vector3d( 0., 0., -1000.), 970., Material(fgray, NORMAL, 0) ));    	    	
+    	add_sphere( Sphere(Vector3d( 0., 0.,  1000.), 900., Material(fgray, NORMAL, 0) )); 
     	
-    	spheres.push_back( Sphere(Vector3d( 0., -1000., 0.), 990., fgray, NORMAL, 0));
-    	spheres.push_back( Sphere(Vector3d( 0.,  1000., 0.), 960., fgray, NORMAL, 0));
+    	add_sphere( Sphere(Vector3d( 0., -1000., 0.), 990., Material(fgray, NORMAL, 0) ));
+    	add_sphere( Sphere(Vector3d( 0.,  1000., 0.), 960., Material(fgray, NORMAL, 0) ));
 
-    	spheres.push_back( Sphere(Vector3d( 1000., 0., 0.), 970., fblue, NORMAL, 0));
-    	spheres.push_back( Sphere(Vector3d(-1000., 0., 0.), 970., fblue, NORMAL, 0));
-    	n_spheres = int(spheres.size());
+    	add_sphere( Sphere(Vector3d( 1000., 0., 0.), 970., Material(fblue, NORMAL, 0) ));
+    	add_sphere( Sphere(Vector3d(-1000., 0., 0.), 970., Material(fblue, NORMAL, 0) ));
+
+		// light
+		add_light( Sphere(Vector3d(10.0, 30.0, 35.0), 5., Material(white, NORMAL, 1) ));
     }	
+	void add_sphere(Sphere s){
+		spheres.push_back(s);
+		n_spheres++;
+	}
+	void add_light(Sphere s){
+		lights.push_back(s);
+		n_lights++;
+	}
 
-	// DIRECT   : mode = 0
-	// INDIRECT : mode = 1
     Vector3f intersect(const Ray& r, int count_bounce=0){		
-		
+		// find the closest sphere
+		// if its a mirror : recast reflective ray
+		// if its transparent : recast reflective and refracted rays
+		// else:	
+		// check if there are other sphere bewteen the light source and P: if yes -> P is in shadow
+		// if no shadow: calculate the light intensity received on the intersection point P 
+		//             + cast random rays for reflective light 
+
 		Vector3f pixel_col = Vector3f(0,0,0);
 
 		// max recursive call
@@ -88,26 +104,23 @@ public:
     		if ((t1 > 0) && (t1 < min_t1)){
 	        	min_t1 = t1;
 	        	id_closer_sphere = i;
-	        }
-			        
+	        }			        
     	}
 
     	if( id_closer_sphere == -1) {
-			return pixel_col; // no intersection at all    		
-			
+			return pixel_col; // no intersection at all    					
     	}  
 		
 		Sphere &s1 = spheres[id_closer_sphere]; // closer sphere
 		Vector3d P = r.C + r.u*min_t1;          // intersection point
 		Vector3d n = (P-s1.O); n.normalize();   // normal
 
-		if (s1.isMirror) 
+		if (s1.mat.isMirror) 
 		{					 				
-			pixel_col = intersect(Ray(P+n*0.001,  r.u-n*2*n.dot(r.u)), count_bounce+1);
-			return pixel_col;
+			return intersect(Ray(P+n*0.001,  r.u-n*2*n.dot(r.u)), count_bounce+1);
 		}
 		else 
-		if (s1.isTrans) 
+		if (s1.mat.isTrans) 
 		{				
 			double dotprod = r.u.dot(n); //
 			double n_ratio = 1.0/1.5;
@@ -121,16 +134,17 @@ public:
 			}								
 		}
 
-		Vector3d l = (light.source-P);     // direction from P to the light source
+		Sphere &light = lights[0];
+		Vector3d l = (light.O-P);     // direction from P to the light source
 		float scale_light = 1; // =cos(theta)
 
 		if(1){ // ombres douce			
 			l.normalize();
 			Vector3d random_dir = getRandomDir(l);
-			scale_light = random_dir.dot(l);			
-			Vector3d new_source_light = light.source + random_dir * light.size;
+			scale_light = random_dir.dot(l); // = cos(tehta)		
+			Vector3d new_source_light = light.O + random_dir * light.R;//light.size;
 			l = (new_source_light-P);
-		} 
+		}
 
 		double d_square = l.squaredNorm(); // distance between P and light source
 		l /= sqrt(d_square);
@@ -143,7 +157,7 @@ public:
 			if (i==id_closer_sphere) continue;
 
 			Sphere &s2 = spheres[i];				
-			double t2 = s2.intersect(Ray(P+n*0.001, l), total_ray_casted); // ray partant de p, en direction de la lumière
+			double t2 = s2.intersect(Ray(P+n*0.001, l), total_ray_casted); // ray partant de P, en direction de la source de lumière
 		
 			// si il existe un nouveau point d'intersection plus proche que la lumière n'est proche
 			if ((t2>0) && (t2*t2 < d_square)) { // comparaisons au carrées pour éviter d'avoir a calculer une racine
@@ -154,16 +168,16 @@ public:
 
 		// direct light    	 
 		if(!shadow) {        
-	        double intensity = std::max(0.0,l.dot(n)) * light.power / (d_square);        
-	        pixel_col = s1.col  * intensity * scale_light / M_PI ;	        
+	        double intensity = std::max(0.0,l.dot(n)) * light.mat.emissivity / (d_square);        
+	        pixel_col = s1.mat.col  * intensity * scale_light / M_PI ;	        
 	    }
 
-        //ajout de la contribution indirecte
+        // contribution indirecte
 	    if(n_rays>1) { 
 			
 			Vector3d random_dir = getRandomDir(n);
 			Ray random_ray(P + n*0.001, random_dir);				
-			pixel_col += intersect(random_ray, count_bounce+1) * s1.col;	
+			pixel_col += intersect(random_ray, count_bounce+1) * s1.mat.col;	
 	 	}
     	
     	return pixel_col;    	

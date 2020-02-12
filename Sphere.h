@@ -2,8 +2,9 @@
 #define SPHERE_H
 
 #include "Ray.h"
-#include "Light.h"
+#include "Material.h"
 
+#include "Object.h"
 #include "Vector.h"
 #include "iostream" 
 #include <limits>
@@ -11,19 +12,13 @@
 
 using namespace std;
 
-class Sphere {
+class Sphere  {
 public:
     Vector3d O;
-    Vector3f col;
-    double R;     
-    bool isMirror=false;   
-    bool isTrans=false;
-    double emissivity=0;
+    double R;    
+    Material mat; 
 
-    Sphere(const Vector3d O, double R, Vector3f col, int mode=0, double emissi=0) : O(O), R(R), col(col), emissivity(emissi) {     
-        if     (mode==1)  isMirror = true;
-        else if(mode==2)  isTrans = true;        
-    }; 
+    Sphere(const Vector3d O, double R, Material mat) : O(O), R(R), mat(mat){ }; 
     
     double intersect(const Ray& r, int& total_ray_casted){
         

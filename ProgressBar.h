@@ -40,7 +40,7 @@ public:
             float elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds> (end-start).count();
             t_estimation = elapsed_seconds / total_call * float(total_call-count);
         }
-        cout << "] " << progress/N * 100.0 <<"%, remaining:" << (int) t_estimation << " seconds\r";
+        cout << "] " << progress/N * 100.0 <<"%\r"; //, remaining:" << (int) t_estimation << " seconds
         cout.flush();
     }
 };
