@@ -12,16 +12,15 @@
 
 using namespace std;
 
-class Sphere  {
+class Sphere : public Object { 
 public:
     Vector3d O;
     double R;    
-    Material mat; 
-
-    Sphere(const Vector3d O, double R, Material mat) : O(O), R(R), mat(mat){ }; 
+   
+    Sphere(const Vector3d O, double R, Material mat) : O(O), R(R), Object(mat) { }; 
     
-    double intersect(const Ray& r, int& total_ray_casted){
-        
+    double intersect(const Ray& r, int& total_ray_casted, InterStruct &interStruct) const {
+     
         total_ray_casted++;
         Vector3d diff = r.C-O; 
         
@@ -35,9 +34,23 @@ public:
         double t1 = (-b + sqrtDelta) /2; // / (2*a)
     
         if (t1 < 0) return -1.0;    
-        t1 = (-b - sqrtDelta) /2; // closer point 
+        t1 = (-b - sqrtDelta) /2; // closest point 
         
+        if(interStruct.computeN){
+            interStruct.P = r.computeIntersection(t1);
+            interStruct.N = (interStruct.P-O) / R;
+        } else 
+        if(interStruct.computeP){
+            interStruct.P = r.computeIntersection(t1);
+        }
+
         return t1;
+    }
+
+    Vector3d getNormalAt(const Vector3d& P, bool normalize=true) const {
+        Vector3d n = (P-O);    // normal direction
+        if (normalize) n /= R; // P being on the surface, we know that norm(P-O) = R
+        return n  ; 
     }
 };
 

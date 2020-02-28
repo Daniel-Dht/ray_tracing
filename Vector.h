@@ -13,6 +13,7 @@ public:
     double y;
     double z;
     Vector3d(){};
+    Vector3d(double x_): x(x_), y(x_), z(x_){};
     Vector3d(double x_, double y_, double z_): x(x_), y(y_), z(z_) {}
     
     double dot(const Vector3d &p) const { return x*p.x + y*p.y + z*p.z;}
@@ -23,6 +24,8 @@ public:
         x/=a; y/=a; z/=a;
     }
     
+    bool operator==(const Vector3d &p) { return (x==p.x && y==p.y && z==p.z) ;} 
+    void operator+=(const Vector3d &p) { x+=p.x; y+=p.y; z+=p.z;} 
     void operator*=(double a)  { x*=a; y*=a; z*=a;}
     void operator/=(double a)  { x/=a; y/=a; z/=a;}
     Vector3d operator*(double a) const { return Vector3d(x*a, y*a, z*a);}    
