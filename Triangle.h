@@ -91,17 +91,17 @@ public:
 		alpha  = (y1-beta*b) / a;	
 	}
 
-	double intersect_interpolateN(const Ray& r, int& total_ray_casted, InterStruct &interStruct, const Vector3d &n1,  const Vector3d &n2,  const Vector3d &n3) const {
+	double intersect_interpolateN(const Ray& r, int& total_ray_casted, InterStruct &interStruct, const Vector3d &n1,  const Vector3d &n2,  const Vector3d &n3, const float &min_t) const {
 
 		total_ray_casted++;
 		
 		// check si la normal du plan est collinéaire avec le rayon
 		const double dot_N_ray = r.u.dot(N); 
-        if(fabs(dot_N_ray) < 0.1 ) return -1.;
+        if(fabs(dot_N_ray) < 0.01 ) return -1.;
 
 		// intersection plan/droite
-		double t = (A - r.C).dot(N) / dot_N_ray;
-		if (t < 0) return -1.;
+		const double t = (A - r.C).dot(N) / dot_N_ray;
+		if (t < 0 || t>min_t) return -1.;
 		
 		// intersection triangle/droite
 		interStruct.P = r.computeIntersection(t);
@@ -115,11 +115,12 @@ public:
 		
 		beta   = (y1*b - y2*a) / (b*b - d*a);		
 		alpha  = (y1-beta*b) / a;	
-		gamma = 1 - alpha - beta;
+		
 		// computeAlphaBeta(alpha, beta, interStruct.P);
-					
+
 		if (alpha > 0 && beta > 0 && (alpha + beta) < 1) {
-			if(interStruct.computeN){				
+			if(interStruct.computeN){	
+				gamma  = 1 - alpha - beta;			
 				interStruct.N = n1*alpha + n2*beta + n3*gamma ;
 				interStruct.N.normalize();
 			} 

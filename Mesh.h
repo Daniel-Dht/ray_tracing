@@ -16,13 +16,15 @@
 
 using namespace std;
 
+
+
 class Face
 {
 public:
 
     int _v[3] = {-1,-1,-1};
 
-    Vector3d N;
+    //Vector3d N;
     Face(){};
     Face(int v1, int v2, int v3) {
         _v[0]=v1;_v[1]=v2;_v[2]=v3;
@@ -48,22 +50,32 @@ public:
     int Nv, Nf;
 
 	Mesh() {};
-	Mesh(const char* obj, double scaling, const Vector3d& offset, Material mat) : Object(mat) {
+	Mesh(const char* obj, double scaling, const Vector3d& offset, Material mat, Vector3f rot=Vector3f(0,0,0)) : Object(mat) {
 
 		readOBJ(obj);	
+        
+
+        
+        std::vector<Vector3d> tts;
+        tts.reserve(Nv);
+        // for (int i = 0; i < Nv; i++) {
+        //     tts.push_back( vertices[i] - Vector3d(0));
+        //     vertices[i] = tts[i]*(-1);
+        // }
+        rotate(rot);
+		for (int i = 0; i < Nv; i++) {            
+			vertices[i] = vertices[i] * scaling + offset ;
+		}	
+
         computeFacesNormal();
         computeVertNormal();
-
-		for (int i = 0; i < vertices.size(); i++) {
-			vertices[i] = vertices[i] * scaling + offset;
-		}	
 
         create_BBox();
         create_BVH(&bvh, 0, Nf);
         cout << "nombre de box dans le BVH : " << nb_box << endl;
 	} 
     
-	double intersect1(const Ray& r, int& total_ray_casted, InterStruct &interStruct) const {
+	double intersect0(const Ray& r, int& total_ray_casted, InterStruct &interStruct) const {
 		
         if (!bbox.intersect(r)) { 
         // if (!bvh.bbox.intersect(r))
@@ -90,20 +102,20 @@ public:
 	        }
 		}
 
-        InterStruct interStructBVH;
-        double minBVH =  intersectBVH(r, total_ray_casted, interStructBVH, &bvh);
+        // InterStruct interStructBVH;
+        // double minBVH =  intersectBVH(r, total_ray_casted, interStructBVH, &bvh);
 
         
-        if(min_t != minBVH){
-            cout << "** N "<< interStruct.N << " , et BVH   " << interStructBVH.N <<endl;
-        }
-        if(min_t != minBVH){
-            cout << "** P "<< interStruct.P << " , et BVH   " << interStructBVH.P <<endl;
-        }
-        //if(min_t <1E99){
-        if(min_t != minBVH){
-            cout << min_t << " , et BVH   " << minBVH<<endl;
-        }
+        // if(min_t != minBVH){
+        //     cout << "** N "<< interStruct.N << " , et BVH   " << interStructBVH.N <<endl;
+        // }
+        // if(min_t != minBVH){
+        //     cout << "** P "<< interStruct.P << " , et BVH   " << interStructBVH.P <<endl;
+        // }
+        // //if(min_t <1E99){
+        // if(min_t != minBVH){
+        //     cout << min_t << " , et BVH   " << minBVH<<endl;
+        // }
 		return min_t;		
 	}
 
@@ -172,11 +184,11 @@ public:
                     Triangle tri = Triangle(v1, v2, v3, normals[i]);
 
                     double t;
-                    if(interStruct.computeN){
+                    if(interStruct.computeN && 1 ){
                         const Vector3d &n1 = normalsVert[face.v1()];
                         const Vector3d &n2 = normalsVert[face.v2()];
                         const Vector3d &n3 = normalsVert[face.v3()];
-                        t = tri.intersect_interpolateN(r, total_ray_casted, interStruct_tri, n2, n3, n1);
+                        t = tri.intersect_interpolateN(r, total_ray_casted, interStruct_tri, n2, n3, n1, min_t);
                     } else {
                         t = tri.intersect(r, total_ray_casted, interStruct_tri);
                     }            
@@ -198,27 +210,52 @@ public:
         {
             Face &f = faces[i];
 
-            Vector3d A = vertices[f.v2()]-vertices[f.v1()];
-            Vector3d B = vertices[f.v3()]-vertices[f.v1()];
-            normals.push_back( A.cross(B).getNormalized() );
+            Vector3d A = vertices[f.v1()]-vertices[f.v2()];
+            Vector3d B = vertices[f.v1()]-vertices[f.v3()];
+            normals.push_back( B.cross(A).getNormalized()*(1.) );
         }
     }
     void computeVertNormal() {
         normalsVert.clear();
         normalsVert.reserve(Nv);
+
+        // certains vertex ont leur normal nulle après calcul, 
+        // si c'est le cas on leur attribut la normal d'une de leur face incicente
+        std::vector<int> faceofVert;
+        faceofVert.reserve(Nv);
+
         for (int i=0 ; i < Nv; i++){ 
             normalsVert.push_back(Vector3d(0));
+            faceofVert.push_back(-1);
         }
+        
         for (int i=0 ; i < Nf; i++)
         {
             const Face &f = faces[i];
             normalsVert[f.v1()] += normals[i];
             normalsVert[f.v2()] += normals[i];
-            normalsVert[f.v3()] += normals[i];            
+            normalsVert[f.v3()] += normals[i];    
+            if( faceofVert[f.v1()]==-1) faceofVert[f.v1()] = f.v1();
+            if( faceofVert[f.v2()]==-1) faceofVert[f.v2()] = f.v2();
+            if( faceofVert[f.v3()]==-1) faceofVert[f.v3()] = f.v3();
         }
         for (int i=0 ; i < Nv; i++){ 
-            normalsVert[i].normalize();
+            if( normalsVert[i].norm()==0) {
+                // cout << i << " CACA" << endl;
+                normalsVert[i] = normals[faceofVert[i]];
+            }
+            else normalsVert[i].normalize();
         }
+
+        // DEBUG
+        // for (int i=0 ; i < Nf; i++)
+        // {
+        //     const Face &f = faces[i];
+        //     normals[i] += normalsVert[f.v1()] ;
+        //     normals[i] += normalsVert[f.v2()] ;
+        //     normals[i] += normalsVert[f.v3()] ;   
+        //     normals[i].normalize();         
+        // }
     } 
 
     void readOBJ(const char file_name[]) {
@@ -344,7 +381,39 @@ public:
         create_BVH(node->br, pivot, i1);
       
     }
+    void rotate(Vector3f rot) {
+        double cosa = cos(rot.x);
+        double sina = sin(rot.x);
 
+        double cosb = cos(rot.y);
+        double sinb = sin(rot.y);
+
+        double cosc = cos(rot.z);
+        double sinc = sin(rot.z);
+
+        double Axx = cosa*cosb;
+        double Axy = cosa*sinb*sinc - sina*cosc;
+        double Axz = cosa*sinb*cosc + sina*sinc;
+
+        double Ayx = sina*cosb;
+        double Ayy = sina*sinb*sinc + cosa*cosc;
+        double Ayz = sina*sinb*cosc - cosa*sinc;
+
+        double Azx = -sinb;
+        double Azy = cosb*sinc;
+        double Azz = cosb*cosc;
+
+        for (int i = 0; i < Nv; i++) {
+            double px = vertices[i].x;
+            double py = vertices[i].y;
+            double pz = vertices[i].z;
+
+            vertices[i].x = Axx*px + Axy*py + Axz*pz;
+            vertices[i].y = Ayx*px + Ayy*py + Ayz*pz;
+            vertices[i].z = Azx*px + Azy*py + Azz*pz;
+        }
+    }
 }; 
+
 
 #endif // MESH_H

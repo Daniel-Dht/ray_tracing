@@ -29,7 +29,7 @@ public:
     void operator*=(double a)  { x*=a; y*=a; z*=a;}
     void operator/=(double a)  { x/=a; y/=a; z/=a;}
     Vector3d operator*(double a) const { return Vector3d(x*a, y*a, z*a);}    
-    Vector3d operator/(double a) const { return Vector3d(x/a, y/a, z/a);}
+    Vector3d operator/(double a) const { return Vector3d(x/a, y/a, z/a);}    
     Vector3d operator+(const Vector3d &p) const { return Vector3d(x+p.x, y+p.y, z+p.z);}
     Vector3d operator-(const Vector3d &p) const { return Vector3d(x-p.x, y-p.y, z-p.z);}      
                                                     //_y*p._z - _z*p._y,       _z*p._x - _x*p._z,       _x*p._y - _y*p._x 
@@ -58,6 +58,7 @@ public:
     Vector3f operator/(float a) const { return Vector3f(x/a, y/a, z/a);}
     Vector3f operator+(const Vector3f &p) const { return Vector3f(x+p.x, y+p.y, z+p.z);}
     Vector3f operator-(const Vector3f &p) const { return Vector3f(x-p.x, y-p.y, z-p.z);}   
+    Vector3f operator+(const float &d) const { return Vector3f(x+d, y+d, z+d);}
     void operator*=(float a)  { x*=a; y*=a; z*=a;}
     void operator/=(float a)  { x/=a; y/=a; z/=a;}
     void operator+=(const Vector3f &p) { x+=p.x; y+=p.y; z+=p.z;} 

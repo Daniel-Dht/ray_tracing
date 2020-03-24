@@ -25,8 +25,8 @@ Vector3d getRandomDir(const Vector3d& n){
 	double r1 = uniform(engine);
 	double r2 = uniform(engine);
 	Vector3d local_random_dir(cos(2*M_PI*r1)*sqrt(1 - r2), sin(2*M_PI*r1)*sqrt(1 - r2), sqrt(r2));
-	//Vector3d rand_vec(uniform(engine)-0.5, uniform(engine)-0.5, uniform(engine)); 
-	Vector3d rand_vec= Vector3d(1,0,0);
+	Vector3d rand_vec(uniform(engine)-0.5, uniform(engine)-0.5, uniform(engine)); 
+	//Vector3d rand_vec= Vector3d(n[0], n[1]+2, n[2]+3);
 	Vector3d tangent1 = n.cross(rand_vec).getNormalized();
 	Vector3d tangent2 = tangent1.cross(n).getNormalized();
 	return n*local_random_dir[2] + tangent1*local_random_dir[0] + tangent2*local_random_dir[1];
@@ -54,34 +54,45 @@ public:
 		Vector3f fgreen = Vector3f(0,250,0)/255;
 		Vector3f fblue  = Vector3f(24,116,205)/255;
 		Vector3f fgray  = Vector3f(176,196,	222)/255;
-		
-		add_sphere(new Sphere(Vector3d(-12., 0., 30.), 3., Material(red, NORMAL , 0) ));
-    	add_sphere(new Sphere(Vector3d(-12., 5., 0.), 8., Material(red, MIRROR, 0) ));
-		add_sphere(new Sphere(Vector3d( 12., 0., 0.), 8., Material(red, MIRROR, 0) ));
-		
-    	// // walls :
+				
+    	// // walls :		
+		add_sphere(new Sphere(Vector3d( 0., 0.,  1000.), 900., Material(fgray, NORMAL, 0) )); 
     	add_sphere(new Sphere(Vector3d( 0., 0., -1000.), 970., Material(fgray, NORMAL, 0) ));    	    	
-    	add_sphere(new Sphere(Vector3d( 0., 0.,  1000.), 900., Material(fgray, NORMAL, 0) )); 
-    	
+    	    	
     	add_sphere(new Sphere(Vector3d( 0., -1000., 0.), 990., Material(fgray, NORMAL, 0) ));
     	add_sphere(new Sphere(Vector3d( 0.,  1000., 0.), 960., Material(fgray, NORMAL, 0) ));
 
-    	add_sphere(new Sphere(Vector3d( 1000., 0., 0.), 970., Material(fblue, NORMAL, 0) ));
+    	add_sphere(new Sphere(Vector3d( 1000., 0., 0.), 970., Material(fblue, MIRROR, 0) ));
     	add_sphere(new Sphere(Vector3d(-1000., 0., 0.), 970., Material(fblue, NORMAL, 0) ));
 
+		// spheres
+		add_sphere(new Sphere(Vector3d(-12., 0., 30.), 3., Material(red, TRANS , 0) ));
+    	add_sphere(new Sphere(Vector3d(-12., 25., 0.), 8., Material(red, MIRROR, 0) ));
+		add_sphere(new Sphere(Vector3d( 12., 0., 10.), 8., Material(red, MIRROR, 0) ));
+
 		//add_triangle(new Triangle(Point3d(0.0099,  8.29565,  0.32215), Point3d(0.0134,  8.3601,  0.11505), Point3d(0.17135,  8.31755,  0.11635),  Material(red, NORMAL, 0) ));
-		add_triangle(new Triangle(Point3d(-10., -15., 25.), Point3d(0., -10., 15.), Point3d(-10, 10, 8),  Material(red, MIRROR, 0) ));
+		// add_triangle(new Triangle(Point3d(-10., -15., 10.), Point3d(10., -10., 2.), Point3d(-9, 25, 4),  Material(fgreen, MIRROR, 0) ));
+		// add_triangle(new Triangle(Point3d(-10., -15., 10.), Point3d(10., -10., 2.), Point3d(-9, 25, 4),  Material(fgreen, MIRROR, 0) ));
+		// add_triangle(new Triangle(Point3d(35., -15., 25.), Point3d(8., -10., 15.), Point3d(12, 20, 8),  Material(fgreen, MIRROR, 0) ));
 		
+		//add_triangle(new Triangle(Point3d(-30., 0., 0.), Point3d(30., 0., 0.), Point3d(0, 30, 0),  Material(red, NORMAL, 0) ));
 		//add_triangle(new Triangle(Point3d(-5,  -5,  -5), Point3d(-5,  15,  -5), Point3d(15,  -5,  -5),  Material(red, NORMAL, 0) ));
 		//add_triangle(new Triangle(Point3d(-2000,  -2000,  -5), Point3d(-2000,  5000,  -5), Point3d(5000,  -2000,  -5),  Material(red, NORMAL, 0) ));
 
-		add_mesh(new Mesh("model.off", 20, Vector3d(0,-10,15),  Material(red, NORMAL, 0))) ;
+		add_mesh(new Mesh("model.off", 20, Vector3d(-15,-10,15),  Material(red, MIRROR, 0), Vector3f(0,M_PI/3,0))) ;
+		add_mesh(new Mesh("model.off", 20, Vector3d(-2,-10,15),  Material(red, TRANS, 0), Vector3f(0,-M_PI/6,0))) ;
+		add_mesh(new Mesh("model.off", 10, Vector3d(-6,-10,30),  Material(fred, NORMAL, 0), Vector3f(0,-M_PI,0))) ;
+		add_mesh(new Mesh("archer.off", 0.4, Vector3d(10,-10,15),  Material(red, NORMAL, 0), Vector3f(0, -M_PI/2*1.25, -M_PI/2))) ; // z, y, x
+
+		add_mesh(new Mesh("patrick.off", 6, Vector3d(12,-10,30),  Material(Vector3f(253, 108, 158)/255, NORMAL, 0), Vector3f(0, 5*M_PI/6, -M_PI/2))) ; // z, y, x
+		add_mesh(new Mesh("patrick.off", 25, Vector3d(10,-10,55),  Material(red, NORMAL, 0), Vector3f(0, 0, -M_PI/2))) ; // z, y, x
+
 		//add_mesh(new Mesh("cube.off", 2, Vector3d(15,10,20),  Material(red, NORMAL, 0))) ;
 		//add_mesh(new Geometry("cube.obj", 5, Vector3d(0,0,0),  Material(red, NORMAL, 0))) ;
 
 		// light
 		//add_sphere(new Sphere(Vector3d(10.0, 30.0, 35.0), 10., Material(white, NORMAL, 1) ));
-		add_light( new Sphere(Vector3d(10.0, 30.0, 35.0), 10., Material(white, NORMAL, 1) ));
+		add_light( new Sphere(Vector3d(-10.0, 30.0, 40.0), 5., Material(white, NORMAL, 1) ));
 		
     }	
 	
@@ -140,6 +151,8 @@ public:
 			i++;	        
     	}
 
+		// DEBUG MODE : display normals
+		//return (Vector3f(interStruct_min.N.x, interStruct_min.N.y, interStruct_min.N.z)*0.5 + 0.5)*255000.0 ;
 
     	if( id_closest_object == -1) {
 			return pixel_col; // no intersection at all    					
@@ -148,7 +161,7 @@ public:
 		Object *s1 = objects[id_closest_object]; // closest sphere
 		if (s1->mat.emissivity > 0) return s1->mat.col * 255555.;
 
-		Vector3d &P = interStruct_min.P;
+		const Vector3d &P = interStruct_min.P;
 		Vector3d &n = interStruct_min.N;
 		// const Vector3d PP = r.computeIntersection(min_t1);	
 		// Vector3d nn = s1->getNormalAt(P);
@@ -162,11 +175,11 @@ public:
 		else 
 		if (s1->mat.isTrans) 
 		{				
-			double dotprod = r.u.dot(n); //
+			const double dotprod = r.u.dot(n); //
 			double n_ratio = 1.0/1.5;
 			if(dotprod > 0.0) n_ratio = 1.5;
 			
-			double radical = 1.0 - n_ratio*n_ratio * (1.0-dotprod*dotprod);
+			const double radical = 1.0 - n_ratio*n_ratio * (1.0-dotprod*dotprod);
 			if (radical > 0.0) {
 				Vector3d u = (r.u - n*dotprod)*n_ratio - n*sqrt(radical); // le - du prof devient plus car on ne modifie pas n.
 				//return intersect(Ray(P-0.001*n,  u), count_bounce+1); // -0.001*n car on part derrière la surface de la sphère
@@ -184,12 +197,12 @@ public:
 			l*=-1;
 			l.normalize();
 			Vector3d random_dir = getRandomDir(l);
-			scale_light = random_dir.dot(l); // = cos(tehta)		
+			scale_light = random_dir.dot(l); 	
 			Vector3d new_source_light = light->O + random_dir * light->R;
 			l = (new_source_light-P);
 		}
 
-		double d_square = l.squaredNorm(); // distance between P and light source
+		const double d_square = l.squaredNorm(); // distance between P and light source
 		l /= sqrt(d_square);
 						
 		// check if point P is in the shadow of another object
@@ -208,25 +221,26 @@ public:
 			// si il existe un nouveau point d'intersection plus proche que la lumière n'est proche
 			if ((t2>0) && (t2*t2 < d_square)) { // comparaisons au carrées pour éviter d'avoir a calculer une racine
 				shadow = true; 
+				//if (id_closest_object==0) cout << "WTTTFF" << i << endl;
 				break;
 			}
 		}
 
 		// direct light    	 
 		if (!shadow) {        
-	        double intensity = std::max(0.0,l.dot(n)) * light->mat.emissivity / (d_square);        
+	        const double intensity = std::max(0.0,l.dot(n)) * light->mat.emissivity / (d_square);        
 	        pixel_col = s1->mat.col  * intensity * scale_light / M_PI ;
 	    } else 
-	 	if (n_rays==1 || 1) { 	
-			double intensity = std::max(0.0,l.dot(n)) * light->mat.emissivity / (d_square) / 3;        
+	 	if (n_rays==1 && 1) { 	
+			const double intensity = std::max(0.0,l.dot(n)) * light->mat.emissivity / (d_square) / 3;        
 	        pixel_col = s1->mat.col  * intensity * scale_light / M_PI ;
 		}
 
         // contribution indirecte
 	    if (n_rays>1) { 		
-			Vector3d random_dir = getRandomDir(n);
-			Ray random_ray(P + n*0.001, random_dir);				
-			pixel_col += intersect(random_ray, count_bounce+1) * s1->mat.col;	
+			const Vector3d random_dir = getRandomDir(n);
+			const Ray random_ray(P +random_dir*0.001, random_dir);				
+			pixel_col += intersect(random_ray, count_bounce+1) * s1->mat.col  * std::max(0.0,n.dot(random_dir));	
 	 	} 
     	
     	return pixel_col;    	

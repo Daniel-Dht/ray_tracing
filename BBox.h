@@ -40,7 +40,6 @@ public:
     // ptr to the 2 childs in the tree
     BVH *bl = NULL;
     BVH *br = NULL; 
-
     
 };
 

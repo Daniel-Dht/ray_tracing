@@ -3,6 +3,7 @@
 
 //->  g++ Raytracer.cpp -std=c++17 -fopenmp -O1
 // g++ arg : https://linux.die.net/man/1/g++,  -ftime-report for compile time
+// "C:\Users\Daniel.D\Downloads\MinGW\bin\g++.exe" Raytracer.cpp -std=c++17 -fopenmp -O1
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -51,8 +52,8 @@ int main(int argc, char **argv) {
     const int WH = W*H;
 
     const double fov = M_PI/3; 
-    const double z = - W / (2*tan(fov/2.0));
-  
+    const double z = - H / (2*tan(fov/2.0));
+
     const Vector3d C = Vector3d(0.0, 0.0, 60); // camera origin
 
     Scene scene = Scene(n_rays, max_bounce);
@@ -68,9 +69,8 @@ int main(int argc, char **argv) {
     //#pragma omp parallel for schedule(dynamic)
     //#pragma omp parallel for
     //
-
-    //#pragma omp parallel for schedule(static,4)
-    #pragma omp parallel for schedule(dynamic)
+    //#pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(static,4)    
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) { 
 

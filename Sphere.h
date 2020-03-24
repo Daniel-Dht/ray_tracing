@@ -47,6 +47,7 @@ public:
         return t1;
     }
 
+
     Vector3d getNormalAt(const Vector3d& P, bool normalize=true) const {
         Vector3d n = (P-O);    // normal direction
         if (normalize) n /= R; // P being on the surface, we know that norm(P-O) = R
