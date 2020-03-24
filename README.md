@@ -8,3 +8,5 @@ Rapport MOS – Informatique Graphique
 Rendu par Ray Tracing
 
 lien du rapport : https://daniel-dht.github.io/ray_tracing//DanielDouheret_rapport.pdf
+
+![Image](image.png)
