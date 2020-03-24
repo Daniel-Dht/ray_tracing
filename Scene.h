@@ -92,7 +92,7 @@ public:
 
 		// light
 		//add_sphere(new Sphere(Vector3d(10.0, 30.0, 35.0), 10., Material(white, NORMAL, 1) ));
-		add_light( new Sphere(Vector3d(-10.0, 30.0, 40.0), 5., Material(white, NORMAL, 1) ));
+		add_light( new Sphere(Vector3d(-10.0, 30.0, 40.0), 3., Material(white, NORMAL, 1) ));
 		
     }	
 	

@@ -70,7 +70,8 @@ int main(int argc, char **argv) {
     //#pragma omp parallel for
     //
     //#pragma omp parallel for schedule(dynamic)
-    #pragma omp parallel for schedule(static,4)    
+    //#pragma omp parallel for schedule(static,4)    
+    #pragma omp parallel for
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) { 
 
